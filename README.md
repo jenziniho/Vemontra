@@ -74,6 +74,19 @@ To give your dad his own login: sanity.io/manage → project → **Members** →
 
 Every push to GitHub redeploys automatically. Projects added in the Studio do **not** need a redeploy.
 
+### Changes from the Studio show up immediately
+
+Without this step, the live site picks up Studio changes within about a minute. With it, they show up as soon as you
+click **Publish**:
+
+1. Make up a long random secret, e.g. run `node -e "console.log(crypto.randomUUID())"`.
+2. Add it in Vercel → Settings → Environment Variables as `SANITY_REVALIDATE_SECRET`, then redeploy.
+3. In sanity.io/manage → project → **API → Webhooks → Create webhook**:
+   - **URL**: `https://www.vemontra.be/api/revalidate`
+   - **Dataset**: `production` · **Trigger on**: Create, Update, Delete
+   - **HTTP method**: POST · **Secret**: the same secret as in step 1
+4. Save, publish a small change in the Studio and refresh the site.
+
 ## 4b. Quick temporary preview on Surge (static)
 
 Surge only hosts plain files, so this version skips `/studio` and the e-mail route: the contact form then opens the
@@ -176,7 +189,7 @@ app/favicon.ico, icon.svg, apple-icon.png   the "V" website icon (browser tab, p
 **Notes**
 
 - Fonts are self-hosted (`@fontsource/*` packages), so visitors' browsers don't contact Google (GDPR-friendly).
-- Pages refresh their Sanity content at most every 60 seconds (`revalidate = 60`).
+- Pages refresh their Sanity content right after a publish (webhook, see step 4), and every 60 seconds as a fallback.
 - The homepage photo panels use the site's own photos until there are at least 3 projects with a main photo.
 - The menu item "Wat doet Vemontra" has a dropdown (Montage en werkwijze, Kraanverhuur, Transport); edit it in `lib/site.js`.
 - The Projects filter keeps its choice in the address (`/projecten?type=loods`), so you can link straight to one type.
